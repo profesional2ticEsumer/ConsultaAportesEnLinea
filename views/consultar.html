@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../static/css/consultar.css">
+  <title>Consultar Aportes en Línea</title>
+</head>
+<body>
+  <h2>Consulta Persona en Base de Datos</h2>
+
+  <label for="documento">Número de Documento:</label>
+  <input type="text" id="documento" placeholder="Ej: 10005607" />
+
+  <button onclick="consultarPersona()">Consultar</button>
+
+  <div class="resultado" id="resultado"></div>
+
+  <script>
+    async function consultarPersona() {
+      const documento = document.getElementById('documento').value;
+      const resultado = document.getElementById('resultado');
+
+      // Obtenemos el token previamente guardado
+      const token = localStorage.getItem('token');
+      if (!token) {
+        resultado.innerText = 'No se encontró token. Por favor, realiza la autenticación primero en login.html';
+        return;
+      }
+
+      resultado.innerText = 'Consultando...';
+
+      try {
+        const response = await fetch('https://marketplacepruebas.aportesenlinea.com/Transversales.Servicios.Fachada/api/Persona/ConsultarPersonaEnBaseDatosReferencia', {
+          method: 'POST',
+          headers: {
+            'User-Agent': 'Mozilla/5.0',
+            'Accept': 'application/json',
+            'Token': token,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            data: [
+              {
+                TipoDocumento: 'CC',
+                NumeroDocumento: documento
+              }
+            ]
+          })
+        });
+
+        const data = await response.json();
+        if (data.data && data.data.length > 0) {
+          resultado.innerText = JSON.stringify(data.data[0], null, 2);
+        } else {
+          resultado.innerText = 'No se encontró información para este documento.';
+        }
+      } catch (error) {
+        resultado.innerText = 'Error en la consulta: ' + error.message;
+      }
+    }
+  </script>
+</body>
+</html>

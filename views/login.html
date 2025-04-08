@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../static/css/login.css">
+  <title>Consultar Aportes en Línea</title>
+</head>
+<body>
+  <h2>Inicio de Sesión</h2>
+
+  <label for="nombreUsuario">Nombre de Usuario:</label>
+  <input type="text" id="nombreUsuario" value="PN890981796" />
+
+  <label for="aplicacion">ID de Aplicación:</label>
+  <input type="text" id="aplicacion" value="E2271FA7-0FCA-4293-BF6D-53414286FDB0" />
+
+  <label for="password">Password:</label>
+  <input type="password" id="password" value="Esumer2025**" />
+
+  <button onclick="obtenerToken()">Ingresar</button>
+
+  <div class="resultado" id="resultado"></div>
+
+  <script>
+    async function obtenerToken() {
+      const nombreUsuario = document.getElementById('nombreUsuario').value;
+      const aplicacion = document.getElementById('aplicacion').value;
+      const password = document.getElementById('password').value;
+      const resultado = document.getElementById('resultado');
+
+      resultado.innerText = 'Autenticando...';
+
+      try {
+        const response = await fetch('https://marketplacepruebas.aportesenlinea.com/Transversales.Servicios.Fachada/api/ControlAcceso/Autenticar', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            data: [
+              {
+                NombreUsuario: nombreUsuario,
+                Aplicacion: aplicacion,
+                Password: password
+              }
+            ]
+          })
+        });
+
+        const data = await response.json();
+        const token = data.data;
+
+        if (token) {
+          // Guardamos el token en localStorage para usarlo en la vista de consulta
+          localStorage.setItem('token', token);
+          // Redirigimos a consultar.html sin mostrar el token
+          window.location.href = 'consultar.html';
+        } else {
+          resultado.innerText = 'Error: No se obtuvo token de la autenticación.';
+        }
+      } catch (error) {
+        resultado.innerText = 'Error en la autenticación: ' + error.message;
+      }
+    }
+  </script>
+</body>
+</html>
